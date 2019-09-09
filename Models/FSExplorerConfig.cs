@@ -1,5 +1,4 @@
 namespace mock_api.Models {
-    using System.Collections.Generic;
     public class FSExplorerConfig {
         public bool AllowDelete { get; set; }
         public bool AllowCopy { get; set; }

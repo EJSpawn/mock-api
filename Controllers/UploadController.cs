@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Runtime.InteropServices.ComTypes;
+using System.Diagnostics;
 using System;
 using Microsoft.AspNetCore.Http;
 using System.IO;
@@ -61,5 +62,15 @@ namespace mock_api.Controllers
                 return BadRequest();
             }
         }
+    }
+
+    public static class SysPath
+    {
+        public static readonly string ROOT = @"\wwwroot";
+        public static readonly string SYS = ROOT + @"\sys";
+        public static readonly string ARQ = SYS + @"\arq";
+        public static readonly string AUTHOR = ARQ + @"\author";
+        public static readonly string POST = ARQ + @"\post";
+        public static readonly string PARTNER = ARQ + @"\partner";
     }
 }
