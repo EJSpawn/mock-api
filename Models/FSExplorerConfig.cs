@@ -1,8 +1,8 @@
 namespace mock_api.Models {
-    public class FSExplorerConfig {
+    public class FsExplorerConfig {
         public bool AllowDelete { get; set; }
         public bool AllowCopy { get; set; }
-        public bool AllowBack { get; set; }
+        public bool AllowBackward { get; set; }
         public bool AllowFoward { get; set; }
         public bool AllowUpload { get; set; }
         public bool AllowDownload { get; set; }
@@ -14,19 +14,19 @@ namespace mock_api.Models {
         public string RenameTo { get; set; }
     }
 
-    public class FSFolder {
+    public class FsExplorerFolder {
 
     }
 
-    public class FSFile {
+    public class FsExplorerElement {
         public string path { get; set; }
         public string name { get; set; }
         public string nameWithoutExtension { get; set; }
         public string extension { get; set; }
-        public FSFileType type { get; set; }
+        public FsExplorerElementType type { get; set; }
     }
 
-    public enum FSFileType {
+    public enum FsExplorerElementType {
         Folder,
         File,
         image
