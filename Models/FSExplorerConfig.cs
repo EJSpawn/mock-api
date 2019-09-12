@@ -1,5 +1,10 @@
 namespace mock_api.Models {
+    using System.Collections.Generic;    
+    using System.IO;
+    using System.Linq;
+
     public class FsExplorerConfig {
+        public bool AllowSelect { get; set; }  = true;
         public bool AllowDelete { get; set; }
         public bool AllowCopy { get; set; }
         public bool AllowBackward { get; set; }
@@ -7,6 +12,9 @@ namespace mock_api.Models {
         public bool AllowUpload { get; set; }
         public bool AllowDownload { get; set; }
         public bool AllowThumbnail { get; set; }
+        public bool AllowRename = true;
+        public bool AllowPathDefinition = true;
+        public bool ShowFileNames = true;
         public string RootDirectory { get; set; }
         public string Selected { get; set; }
         public string CopyTo { get; set; }
@@ -15,20 +23,48 @@ namespace mock_api.Models {
     }
 
     public class FsExplorerFolder {
+        public IList<FsExplorerElement> Elements = new List<FsExplorerElement>();
+        public FsExplorerFolder(string path) {            
+            var folders = Directory.GetDirectories(path);
+            var files = Directory.GetFiles(path);
+            foreach(var folder in folders){
+                var element = new FsExplorerElement(folder);
+                Elements.Add(element);
+            }
 
+            foreach(var file in files){
+                var element = new FsExplorerElement(file);
+                Elements.Add(element);
+            }
+        }
     }
 
     public class FsExplorerElement {
-        public string path { get; set; }
-        public string name { get; set; }
-        public string nameWithoutExtension { get; set; }
-        public string extension { get; set; }
-        public FsExplorerElementType type { get; set; }
+        public string FullPath { get; set; }
+        public string Name { get; set; }
+        public string NameWithoutExtension { get; set; }
+        public string Extension { get; set; }
+        public FsExplorerElementType Type { get; set; }
+        private string[] AllowedImageExtension = new string[] {".jpg",".jpeg",".png",".gif"};
+
+        public FsExplorerElement(string path) {
+            FullPath = path;
+            Name = Path.GetFileName(path);
+            if(Path.HasExtension(path)) {
+                NameWithoutExtension = Path.GetFileNameWithoutExtension(path);
+                Extension = Path.GetExtension(path);
+                Type = AllowedImageExtension.Any(e => e.Equals(Extension.ToLower())) ? FsExplorerElementType.Image : FsExplorerElementType.File;
+            }
+            else
+            {
+                Type = FsExplorerElementType.Folder;
+            }
+        }
     }
 
     public enum FsExplorerElementType {
         Folder,
         File,
-        image
+        Image
     }
 }
