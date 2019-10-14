@@ -58,7 +58,7 @@ namespace mock_api.Controllers
         }
         
         [HttpPost("upload/")]
-        public async Task<IActionResult> Upload([FromBody]FsExplorerDTO  dto)
+        public async Task<IActionResult> Upload([FromForm]FsExplorerDTO  dto)
         {   
             try{
                 var size = dto.Files.Sum(f => f.Length);
