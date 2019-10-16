@@ -45,8 +45,8 @@ namespace mock_api.Controllers
             }
         }
 
-        [HttpGet("refresh/")]
-        public IActionResult Refresh([FromQuery]FsExplorerDTO dto)
+        [HttpPost("refresh/")]
+        public IActionResult Refresh([FromForm]FsExplorerDTO dto)
         {
             var directory = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder);
 
@@ -101,7 +101,7 @@ namespace mock_api.Controllers
         }
 
         [HttpPost("copy/")]
-        public IActionResult Copy([FromQuery]FsExplorerDTO dto)
+        public IActionResult Copy([FromBody]FsExplorerDTO dto)
         {
             var selectFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
             var copyToToFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.CopyTo, dto.Selected);
@@ -121,7 +121,7 @@ namespace mock_api.Controllers
         }
 
         [HttpPost("move/")]
-        public IActionResult Move([FromQuery]FsExplorerDTO dto)
+        public IActionResult Move([FromBody]FsExplorerDTO dto)
         {
             var selectFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
             var moveToToFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.MoveTo, dto.Selected);
@@ -141,7 +141,7 @@ namespace mock_api.Controllers
         }
 
         [HttpPost("rename/")]
-        public IActionResult Rename([FromQuery]FsExplorerDTO dto)
+        public IActionResult Rename([FromBody]FsExplorerDTO dto)
         {
             var selectFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
             var renameToFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.RenameTo);
