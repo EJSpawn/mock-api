@@ -43,17 +43,15 @@ namespace mock_api.Models {
         public string FullPath { get; set; }
         public string Name { get; set; }
         public string NameWithoutExtension { get; set; }
-        public string Extension { get; set; }
         public FsExplorerElementType Type { get; set; }
         private string[] AllowedImageExtension = new string[] {".jpg",".jpeg",".png",".gif"};
 
         public FsExplorerElement(string path) {
             FullPath = path;
             Name = Path.GetFileName(path);
+            NameWithoutExtension = Path.GetFileNameWithoutExtension(path);
             if(Path.HasExtension(path)) {
-                NameWithoutExtension = Path.GetFileNameWithoutExtension(path);
-                Extension = Path.GetExtension(path);
-                Type = AllowedImageExtension.Any(e => e.Equals(Extension.ToLower())) ? FsExplorerElementType.Image : FsExplorerElementType.File;
+                Type = AllowedImageExtension.Any(e => e.Equals(Path.GetExtension(path).ToLower())) ? FsExplorerElementType.Image : FsExplorerElementType.File;
             }
             else
             {

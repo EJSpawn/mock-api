@@ -179,17 +179,17 @@ namespace mock_api.Controllers
         }
 
         [HttpPost("delete/")]
-        public IActionResult Delete([FromBody]FsExplorerDTO dto)
+        public IActionResult Delete([FromForm]FsExplorerDTO dto)
         {
             var selectFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
 
-            if(Directory.Exists(selectFilePath))
+            if(System.IO.File.Exists(selectFilePath))
             {
                 System.IO.File.Delete(selectFilePath);
-                return Ok();
+                return Ok(new {message = "Arquivo deletado com sucesso"});
             }
 
-            return BadRequest();
+            return BadRequest("Arquivo não existe:" + dto.Selected);
         }
     }
 
