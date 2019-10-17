@@ -30,7 +30,7 @@ namespace mock_api.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-        public string GetRootDirectory(String rootDirectory) {
+        private string GetRootDirectory(String rootDirectory) {
             switch(rootDirectory.ToLower()){
                 case "author":
                     return SysPath.AUTHOR;
@@ -42,6 +42,23 @@ namespace mock_api.Controllers
                     return SysPath.POST;
                 default:
                     throw new FileNotFoundException();
+            }
+        }
+
+        private string GetExtension(IFormFile file) {
+            if(!string.IsNullOrEmpty(Path.GetExtension(file.FileName))){
+                return Path.GetExtension(file.FileName).ToLower();
+            }
+            
+            switch(file.ContentType){
+                case "image/jpeg":
+                    return ".jpg";
+                case "image/gif":
+                    return ".gif";
+                case "image/png":
+                    return ".png";
+                default:
+                    return "";
             }
         }
 
@@ -76,12 +93,13 @@ namespace mock_api.Controllers
                 foreach (var file in dto.Files)
                 {
                     if (!(file?.Length > 0)) continue;
-                    var index = 1;
-                    var filePath = $"{directory}{dto.FileName}-{index}{Path.GetExtension(file.FileName).ToLower()}";
+                    var index = 0;
+                    var filePath = $"{Path.Combine(directory, dto.FileName)}-{index}{GetExtension(file).ToLower()}";
                     do
                     {
                         index++;
-                        filePath = $"{Path.Combine(directory, dto.FileName)}-{index}{Path.GetExtension(file.FileName).ToLower()}";
+                        filePath = $"{Path.Combine(directory, dto.FileName)}-{index}{GetExtension(file).ToLower()}";
+                        Trace.WriteLine(filePath);
                     } while (System.IO.File.Exists(filePath));
                     
                     using (var stream = new FileStream(path: filePath, mode: FileMode.Create))
@@ -89,11 +107,11 @@ namespace mock_api.Controllers
                         await file.CopyToAsync(stream);
                     }                        
 
-                    fileNameOldList.Add(file.FileName);
+                    fileNameOldList.Add(GetExtension(file));
                     fileNameNewList.Add(filePath);
                 }
                 
-                return Ok();
+                return Ok(fileNameOldList);
             } catch ( Exception e){
                 Trace.WriteLine(e);
                 return BadRequest();
