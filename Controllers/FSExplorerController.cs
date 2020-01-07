@@ -16,14 +16,6 @@ namespace mock_api.Controllers
     public class FsExplorerController : ControllerBase
     {
         private readonly IHostingEnvironment _hostingEnvironment;
-        // Refresh
-        // Delete
-        // Upload        
-        // Thumbnail
-        // Backward
-        // Foward
-        // Copy
-        // Move
 
         public FsExplorerController(IHostingEnvironment hostingEnvironment)
         {
@@ -66,12 +58,9 @@ namespace mock_api.Controllers
         public IActionResult Refresh([FromForm]FsExplorerDTO dto)
         {
             var directory = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder);
+            if(!Directory.Exists(directory)) BadRequest(dto);
 
-            if(Directory.Exists(directory))
-            {
-                return Ok(new FsExplorerFolder(directory).Elements);
-            }
-            return BadRequest(dto);
+            return Ok(new FsExplorerFolder(directory).Elements);
         }
         
         [HttpPost("upload/")]
@@ -79,17 +68,13 @@ namespace mock_api.Controllers
         {   
             try{
                 var size = dto.Files.Sum(f => f.Length);
-                if(size == 0){
-                    return BadRequest();
-                }
+                if(size == 0) return BadRequest();
 
                 var directory = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder);
-                if(!Directory.Exists(directory)){
+                if(!Directory.Exists(directory)) {
                     Directory.CreateDirectory(directory);
                 }
                 
-                var fileNameOldList = new List<string>();
-                var fileNameNewList = new List<string>();
                 foreach (var file in dto.Files)
                 {
                     if (!(file?.Length > 0)) continue;
@@ -105,13 +90,10 @@ namespace mock_api.Controllers
                     using (var stream = new FileStream(path: filePath, mode: FileMode.Create))
                     {
                         await file.CopyToAsync(stream);
-                    }                        
-
-                    fileNameOldList.Add(GetExtension(file));
-                    fileNameNewList.Add(filePath);
+                    }
                 }
                 
-                return Ok(fileNameOldList);
+                return Ok();
             } catch ( Exception e){
                 Trace.WriteLine(e);
                 return BadRequest();
@@ -124,38 +106,25 @@ namespace mock_api.Controllers
             var selectFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
             var copyToToFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.CopyTo, dto.Selected);
 
-            if(Directory.Exists(selectFilePath))
-            {
-                if (System.IO.File.Exists(copyToToFilePath))
-                {
-                    //Message File Exists, Overwrite?
-                    return BadRequest();
-                }
-                System.IO.File.Copy(selectFilePath, copyToToFilePath);
-                return Ok();
-            }
+            if(!Directory.Exists(selectFilePath)) return BadRequest("Diretório de origem não encontrado.");
+            if (System.IO.File.Exists(copyToToFilePath)) return BadRequest("Já existe um arquivo com esse nome.");
 
-            return BadRequest();
+            System.IO.File.Copy(selectFilePath, copyToToFilePath);
+            return Ok();
         }
 
         [HttpPost("move/")]
         public IActionResult Move([FromBody]FsExplorerDTO dto)
         {
-            var selectFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
-            var moveToToFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.MoveTo, dto.Selected);
+            var selectedFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
+            var moveToFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.MoveTo, dto.Selected);
 
-            if(Directory.Exists(selectFilePath))
-            {
-                if (System.IO.File.Exists(moveToToFilePath))
-                {
-                    //Message File Exists, Overwrite?
-                    return BadRequest();
-                }
-                System.IO.File.Move(selectFilePath, moveToToFilePath);
-                return Ok();
-            }
+            if(!Directory.Exists(selectedFilePath)) return BadRequest("Diretório de origem não encontrado.");
+            if(System.IO.File.Exists(moveToFilePath)) return BadRequest("Já existe um arquivo com esse nome.");
 
-            return BadRequest();
+            System.IO.File.Move(selectedFilePath, moveToFilePath);
+
+            return Ok();
         }
 
         [HttpPost("rename/")]
@@ -164,18 +133,12 @@ namespace mock_api.Controllers
             var selectFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
             var renameToFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.RenameTo);
 
-            if(Directory.Exists(selectFilePath))
-            {
-                if (System.IO.File.Exists(renameToFilePath))
-                {
-                    //Message File Exists
-                    return BadRequest();
-                }
-                System.IO.File.Move(selectFilePath, renameToFilePath);
-                return Ok();
-            }
+            if(!Directory.Exists(selectFilePath)) return BadRequest("Diretório de origem não encontrado.");
+            if(System.IO.File.Exists(renameToFilePath)) return BadRequest("Já existe um arquivo com esse nome.");
+            
+            System.IO.File.Move(selectFilePath, renameToFilePath);
 
-            return BadRequest();
+            return Ok();
         }
 
         [HttpPost("delete/")]
@@ -183,13 +146,11 @@ namespace mock_api.Controllers
         {
             var selectFilePath = Path.Combine(GetRootDirectory(dto.RootDirectory), dto.Folder, dto.Selected);
 
-            if(System.IO.File.Exists(selectFilePath))
-            {
-                System.IO.File.Delete(selectFilePath);
-                return Ok(new {message = "Arquivo deletado com sucesso"});
-            }
-
-            return BadRequest("Arquivo não existe:" + dto.Selected);
+            if(System.IO.File.Exists(selectFilePath)) return BadRequest("Arquivo não existe:" + dto.Selected);
+            
+            System.IO.File.Delete(selectFilePath);
+            
+            return Ok(new {message = "Arquivo deletado com sucesso"});
         }
     }
 
